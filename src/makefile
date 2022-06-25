@@ -1,57 +1,47 @@
-CC = g++ 
-flags = -std=c++17
-exe = play
+CC 					= g++ 
+CVERSION 			= -std=c++17 
+CFLAGS 				= -Wall -Wundef -Wpedantic -Werror -Wextra -Wuninitialized -Winit-self
+TARGET 				= play
 
-
-# ----------------------------------------------------------------------- #
-# ----------------------------------------------------------------------- #
-
-SDL2_path = /opt/homebrew/Cellar/sdl2/2.0.22/include/SDL2
-lib_path = /opt/homebrew/Cellar/sdl2/2.0.22/lib
-
-
-IMAGE_path = /opt/homebrew/Cellar/sdl2_image/2.0.5/include/SDL2
-libimage_path = /opt/homebrew/Cellar/sdl2_image/2.0.5/lib
+HEADERS 			:= game.hpp textureManager.hpp gameObject.hpp
+OBJS 				:= main.o game.o textureManager.o gameObject.o
 
 # ----------------------------------------------------------------------- #
 # ----------------------------------------------------------------------- #
 
+SDL2_path 			= /opt/homebrew/Cellar/sdl2/2.0.22/include/SDL2
+lib_path 			= /opt/homebrew/Cellar/sdl2/2.0.22/lib
 
-includes = -I$(SDL2_path) -I$(IMAGE_path) 
-libraries = -L$(lib_path) -lSDL2 -L$(libimage_path) -lSDL2_image
-objectDump = ../objDir/
+IMAGE_path 			= /opt/homebrew/Cellar/sdl2_image/2.0.5/include/SDL2
+libimage_path 		= /opt/homebrew/Cellar/sdl2_image/2.0.5/lib
+
+# ----------------------------------------------------------------------- #
+# ----------------------------------------------------------------------- #
+
+
+INCLUDES 			= -I$(SDL2_path) -I$(IMAGE_path) 
+LIBS 				= -L$(lib_path) -lSDL2 -L$(libimage_path) -lSDL2_image
+DIR 				= ../objDir/
 
 
 # ----------------------------------------------------------------------- #
 
-all: main.o game.o textureManager.o gameObject.o
-	@cd $(objectDump) && $(CC) $(flags) *.o -o $(exe) $(includes) $(libraries);
-	@echo "executable file created"
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	@cd $(DIR); \
+	$(CC) $(CVERSION) $(INCLUDES) $(LIBS) $^ -o $@;
+	@echo "$@ created"
 
 
-main.o: main.cpp game.hpp textureManager.hpp gameObject.hpp
-	@$(CC) $(flags) -c main.cpp -o $(objectDump)main.o $(includes)
-	@echo "main.o created"
-
-
-game.o: game.cpp game.hpp
-	@$(CC) $(flags) -c game.cpp -o $(objectDump)game.o $(includes)
-	@echo "game.o created"
-
-
-textureManager.o: textureManager.cpp textureManager.hpp
-	@$(CC) $(flags) -c textureManager.cpp -o $(objectDump)textureManager.o $(includes)
-	@echo "textureManager.o created"
-
-
-gameObject.o: gameObject.cpp gameObject.hpp
-	@$(CC) $(flags) -c gameObject.cpp -o $(objectDump)gameObject.o $(includes)
-	@echo "gameObject.o created"
+%.o: %.cpp $(HEADERS)
+	@$(CC) $(CVERSION) $(INCLUDES) -c $< -o $(DIR)$@ 
+	@echo "$@ created"
 
 # ----------------------------------------------------------------------- #
 
 run:
-	cd $(objectDump) && ./play
+	cd $(DIR) && ./$(TARGET)
 
 clean:
-	cd $(objectDump) && rm play *.o
+	cd $(DIR) && rm $(TARGET) $(OBJS) $(deps)
